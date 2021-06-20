@@ -46,6 +46,35 @@ public class Client extends JFrame {
     }
 
     private void getFile(String fileName){
+        try{
+            File file = new File("server" + File.separator + fileName);
+            if (!file.exists()){
+                throw  new FileNotFoundException();
+            }
+
+            long fileLength = file.length();
+            FileInputStream fis = new FileInputStream(file);
+
+            out.writeUTF("download");
+            out.writeUTF(fileName);
+            out.writeLong(fileLength);
+
+            int read = 0;
+            byte[] buffer = new byte [8 * 1024];
+            while ((read = fis.read(buffer)) != -1){
+                out.write(buffer,0,read);
+            }
+
+            out.flush();
+
+            String status = in.readUTF();
+            System.out.println("sending status: " + status);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendFile(String fileName){
